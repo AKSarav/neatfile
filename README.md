@@ -6,7 +6,7 @@ lets declutter your file and make it neat.
 
 It removes all the comments and empty lines from the file and prints the output to the standard output or to a file.
 
-![neatfile](demo.gif)
+![neatfile](demo-short.gif)
 
 
 ## Usage
