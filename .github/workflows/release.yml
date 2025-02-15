@@ -39,13 +39,13 @@ jobs:
           shasum -a 256 dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip > dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}
           path: dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip
 
       - name: Upload SHA256 checksums
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}-sha256
           path: dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256
@@ -107,7 +107,7 @@ jobs:
           echo "SHA256: $(cat dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256 | awk '{print $1}')" >> dist/output.txt
 
       - name: Upload output.txt
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: output
           path: dist/output.txt
