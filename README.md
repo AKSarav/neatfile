@@ -1,10 +1,10 @@
 # neatfile
 
-You want to remove all the comments and empty lines from a file?  try `neatfile`
+Looking for a tool to remove all those comments and unwanted blank lines in a file especially your code, Then `neatfile` is for you.
 
 lets declutter your file and make it neat.
 
-It removes all the comments and empty lines from the file and prints the output to the standard output or to a file.
+It removes all the commented lines ( except inline comments) and empty lines from the file and prints the output to the standard output or to a file.
 
 ![neatfile](demo-short.gif)
 
