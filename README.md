@@ -25,11 +25,14 @@ If no output file is specified, the output will be printed to the standard outpu
 
 ## How to install
 
+### From Git Repository
 ```
 git clone https://github.com/AKSarav/neatfile.git
 cd NeatFile
 make install
 ```
+
+### Using Go Install
 
 You can alternatively use go install to install the tool.
 
@@ -37,7 +40,12 @@ You can alternatively use go install to install the tool.
 go install github.com/AKSarav/neatfile
 ```
 
-## Coming soon to Brew 🍺
+### Install with Brew
+
+```
+brew tap AKSarav/neatfile
+brew install neatfile
+```
 
 ## Contribute
 
