@@ -1,9 +1,10 @@
 # Makefile for building and distributing the neatfile application
 
 APP_NAME = neatfile
-VERSION = 1.0.0
+VERSION = 0.0.1
 BUILD_DIR = build
 DIST_DIR = dist
+LICENSE = MIT
 
 PLATFORMS = linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64
 
@@ -45,16 +46,3 @@ install: build
 	else \
 		echo 'Unknown shell. Please add $(PWD) to your PATH manually.'; \
 	fi
-
-brew:
-	@mkdir -p $(DIST_DIR)
-	@echo "class Neatfile < Formula" > $(DIST_DIR)/neatfile.rb
-	@echo "  desc \"NeatFile is a tool to clean up files by removing comments and empty lines\"" >> $(DIST_DIR)/neatfile.rb
-	@echo "  homepage \"https://github.com/AKSarav/neatfile\"" >> $(DIST_DIR)/neatfile.rb
-	@echo "  url \"https://github.com/AKSarav/neatfile/releases/download/v$(VERSION)/neatfile-$(VERSION)-darwin-amd64.zip\"" >> $(DIST_DIR)/neatfile.rb
-	@echo "  version \"$(VERSION)\"" >> $(DIST_DIR)/neatfile.rb
-	@echo "  sha256 \"$(shell shasum -a 256 $(DIST_DIR)/$(APP_NAME)-$(VERSION)-darwin-amd64.zip | awk '{print $$1}')\"" >> $(DIST_DIR)/neatfile.rb
-	@echo "  def install" >> $(DIST_DIR)/neatfile.rb
-	@echo "    bin.install \"$(APP_NAME)\"" >> $(DIST_DIR)/neatfile.rb
-	@echo "  end" >> $(DIST_DIR)/neatfile.rb
-	@echo "end" >> $(DIST_DIR)/neatfile.rb

@@ -11,8 +11,11 @@ import (
 )
 
 var (
-	keepEmpty = flag.Bool("keep-empty", false, "Keep empty lines in output")
-	output    = flag.String("o", "", "Output file (default: stdout)")
+	version    = flag.Bool("v", false, "Print version")
+	help       = flag.Bool("h", false, "Show help")
+	output     = flag.String("o", "", "Output file (default: stdout)")
+	keepEmpty  = flag.Bool("k", false, "Keep empty lines in output")
+	versiontag = "0.0.1"
 )
 
 // Map of file extensions to comment patterns
@@ -104,14 +107,48 @@ func processFile(filename string, writer *bufio.Writer) error {
 	return scanner.Err()
 }
 
+func usage() {
+	fmt.Fprintf(os.Stderr, `Usage: neatfile [-v] [-k] [-o output] <file>
+Options:
+  -h    Show help
+  -v    Print version
+  -k    Keep empty lines in output (default is to remove them)
+  -o    Output file (default: stdout)
+`)
+}
 func main() {
 	flag.Parse()
-	files := flag.Args()
+	file := flag.Args()
 
-	if len(files) == 0 {
-		fmt.Println("Usage: neatfile [options] <files>")
-		flag.PrintDefaults()
+	if *help {
+		usage()
+		os.Exit(0)
+	}
+
+	if *version {
+		fmt.Println("neatfile ", versiontag)
+		os.Exit(0)
+	}
+
+	if len(file) == 0 && !*version {
+		usage()
 		os.Exit(1)
+	} else if len(file) > 1 {
+		fmt.Fprintf(os.Stderr, "Error: only one file is allowed at a time \n")
+		os.Exit(1)
+	}
+
+	for _, f := range file {
+		if _, err := os.Stat(f); os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "Error: file %s does not exist\n", f)
+			os.Exit(1)
+		} else if info, err := os.Stat(f); err == nil && info.IsDir() {
+			fmt.Fprintf(os.Stderr, "Error: %s is a directory\n", f)
+			os.Exit(1)
+		} else if _, err := os.Open(f); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: file is present but we could not open - %s \ncould it be permission issue ?\n", f)
+			os.Exit(1)
+		}
 	}
 
 	var writer *bufio.Writer
@@ -127,8 +164,8 @@ func main() {
 		writer = bufio.NewWriter(os.Stdout)
 	}
 
-	for _, file := range files {
-		err := processFile(file, writer)
+	for _, f := range file {
+		err := processFile(f, writer)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error processing file %s: %v\n", file, err)
 		}

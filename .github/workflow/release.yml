@@ -1,0 +1,112 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        goos: [linux, darwin, windows]
+        goarch: [amd64, arm64]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.23
+
+      - name: Build
+        run: |
+          mkdir -p build
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o build/neatfile-${{ matrix.goos }}-${{ matrix.goarch }} main.go
+
+      - name: Archive binaries
+        run: |
+          mkdir -p dist
+          zip -j dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip build/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}
+
+      - name: Generate SHA256 checksums
+        run: |
+          shasum -a 256 dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip > dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+
+      - name: Upload SHA256 checksums
+        uses: actions/upload-artifact@v2
+        with:
+          name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}-sha256
+          path: dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist
+
+      - name: Download SHA256 checksums
+        uses: actions/download-artifact@v2
+        with:
+          name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}-sha256
+          path: dist
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          asset_name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload SHA256 Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256
+          asset_name: neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256
+          asset_content_type: text/plain
+
+      - name: Generate output.txt
+        run: |
+          echo "URL: https://github.com/${{ github.repository }}/releases/download/${{ github.ref }}/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.zip" >> dist/output.txt
+          echo "SHA256: $(cat dist/neatfile-${{ matrix.goos }}-${{ matrix.goarch }}.sha256 | awk '{print $1}')" >> dist/output.txt
+
+      - name: Upload output.txt
+        uses: actions/upload-artifact@v2
+        with:
+          name: output
+          path: dist/output.txt
