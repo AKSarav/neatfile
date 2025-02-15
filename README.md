@@ -26,18 +26,18 @@ If no output file is specified, the output will be printed to the standard outpu
 ## How to install
 
 ```
-git clone https://github.com/AKSarav/NeatFile.git
+git clone https://github.com/AKSarav/neatfile.git
 cd NeatFile
 make install
 ```
 
-Using the Go package manager
+You can alternatively use go install to install the tool.
 
 ```
-go get -u github.com/AKSarav/neatfile
+go install github.com/AKSarav/neatfile
 ```
 
-## Coming soon to Brew 
+## Coming soon to Brew 🍺
 
 ## Contribute
 
